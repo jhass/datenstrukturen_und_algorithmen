@@ -1,7 +1,13 @@
 package de.fhh.dsa.common.u;
 
-import java.util.Random;
 
+
+/** Teilsummen berechnen
+ * 
+ * @author Jonne Haß <jonne.hass@stud.fh-hannover.de> (1196473)
+ * @author Richard Pump <richard.pump@stud.fh-hannover.de> (1195429)
+ *
+ */
 public class DSA_1196473_1 {
 	public static void main(String[] args) {
 		int[] data = {31,-41,59,26,-53,58,97,-93,-23,84};
@@ -45,11 +51,11 @@ public class DSA_1196473_1 {
 		for (int i=0; i< array.length; i++) {
 			for (int j=i; j< array.length; j++) {
 				int tmpsum= 0;
-				for (int k=i; k<= j; k++) {
+				for (int k=i; k<=j; k++) {
 					tmpsum += array[k];
 				}
 				if (tmpsum > maxsum) {
-					maxsum= tmpsum;
+					maxsum = tmpsum;
 				}
 			}
 		}
@@ -121,10 +127,9 @@ public class DSA_1196473_1 {
 	}
 	
 	public static int[] getRandomArray(int n) {
-		Random random = new Random();
 		int[] a = new int[n];
 		for (int i=0; i<n; i++) {
-			a[i] = random.nextInt(2000)-1000;
+			a[i] = (int) (Math.random()*2000)-1000;
 		}
 		return a;
 	}
