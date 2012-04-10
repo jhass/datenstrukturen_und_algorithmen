@@ -2,8 +2,13 @@ package de.fhh.dsa.common.u;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashMap;
 
+/** Teilsummen berechnen
+*
+* @author Jonne Haß <jonne.hass@stud.fh-hannover.de> (1196473)
+* @author Richard Pump <richard.pump@stud.fh-hannover.de> (1195429)
+*
+*/
 public class DSA_1196473_2 {
 	private static long benchmarkStart;
 	
