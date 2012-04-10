@@ -3,7 +3,7 @@ package de.fhh.dsa.common.u;
 
 
 /** Teilsummen berechnen
- * 
+ * 	
  * @author Jonne Haß <jonne.hass@stud.fh-hannover.de> (1196473)
  * @author Richard Pump <richard.pump@stud.fh-hannover.de> (1195429)
  *
