@@ -2,8 +2,11 @@ package de.fhh.dsa.common.u;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-/** Teilsummen berechnen
+
+/** Fibonacci, Fakultät, Logarithmus
 *
 * @author Jonne Haß <jonne.hass@stud.fh-hannover.de> (1196473)
 * @author Richard Pump <richard.pump@stud.fh-hannover.de> (1195429)
