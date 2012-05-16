@@ -1,4 +1,4 @@
-package de.fhh.dsa.common.u;
+ package de.fhh.dsa.common.u;
 
 import java.util.Arrays;
 
@@ -7,13 +7,14 @@ public class DSA_1196473_4 {
 	
 	public static void main(String[] args) {
 		
+		/********** comment out one or more **********************************/
 		//testAlgorithmsA();
 		System.out.println();
 		//testStraightInsertion();
 		System.out.println();
-		testFindMinMax();
+		//testFindMinMax();
 		System.out.println();
-		testMergeSortVSStraightInsertion();
+		//testMergeSortVSStraightInsertion();
 	}
 	
 	/***************** Aufgabe 8) d) ******************************************/
