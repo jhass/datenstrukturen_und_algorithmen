@@ -5,6 +5,7 @@ public class DSA_1196473_5 {
 		class Node<ValueType extends Comparable<ValueType>> {
 			protected ValueType value;
 			protected Node<ValueType> next;
+			
 			protected Node(ValueType value, Node<ValueType> nextNode) {
 				this.value = value;
 				this.setNext(nextNode);
@@ -17,6 +18,10 @@ public class DSA_1196473_5 {
 			@Override
 			public String toString() {
 				return this.value.toString();
+			}
+			
+			public String asString() {
+				return String.format("<Node value=%s>", this.value); 
 			}
 		}
 		
@@ -60,14 +65,14 @@ public class DSA_1196473_5 {
 		}
 		
 		public Node<NodeType> insertBefore(Node<NodeType> before, NodeType insert) {
-			Node<NodeType> preBeforeNode = locatePrevious(before);
-			Node<NodeType> insertNode = new Node<NodeType>(insert, preBeforeNode.next);
+			Node<NodeType> prevBeforeNode = locatePrevious(before);
+			Node<NodeType> insertNode = new Node<NodeType>(insert, prevBeforeNode.next);
 			
-			if (preBeforeNode.next.next == preBeforeNode) {
-				preBeforeNode.next.setNext(insertNode);
+			if (prevBeforeNode.next.next == prevBeforeNode) {
+				prevBeforeNode.next.setNext(insertNode);
 			}
 			
-			preBeforeNode.setNext(insertNode);
+			prevBeforeNode.setNext(insertNode);
 			return insertNode;
 		}
 		
@@ -75,18 +80,18 @@ public class DSA_1196473_5 {
 			if (node == null) {
 				return this.tail.next;
 			}
-			Node<NodeType> beforeNode = this.head;
-			while (beforeNode.next != node) {
-				beforeNode = beforeNode.next;
+			Node<NodeType> prevNode = this.head;
+			while (prevNode.next != node) {
+				prevNode = prevNode.next;
 			}
-			return beforeNode;
+			return prevNode;
 		}
 		
 		public void delete(Node<NodeType> toDelete) {
 			if (toDelete.next.next == toDelete) {
-				Node<NodeType> before = locatePrevious(toDelete);
-				before.setNext(toDelete.next);
-				before.next.setNext(before);
+				Node<NodeType> previous = locatePrevious(toDelete);
+				previous.setNext(toDelete.next);
+				previous.next.setNext(previous);
 			} else {
 				toDelete.value = toDelete.next.value;
 				toDelete.setNext(toDelete.next.next);
@@ -101,7 +106,7 @@ public class DSA_1196473_5 {
 		public SinglyLinkedList<NodeType> merge(SinglyLinkedList<NodeType> otherList) {
 			Node<NodeType> ownNode = this.head.next;
 			Node<NodeType> otherNode = otherList.head.next;
-			Node<NodeType> preOwnNode = this.head;
+			Node<NodeType> prevOwnNode = this.head;
 			Node<NodeType> nextOtherNode;
 			
 			if (ownNode == this.tail) {  // we are empty
@@ -113,12 +118,12 @@ public class DSA_1196473_5 {
 			
 			while(otherNode != otherList.tail) {
 				while(ownNode != this.tail && (ownNode.value.compareTo(otherNode.value) < 0)) {
-					preOwnNode = ownNode;
+					prevOwnNode = ownNode;
 					ownNode = ownNode.next;
 				}
 				
 				nextOtherNode = otherNode.next;
-				preOwnNode.setNext(otherNode);
+				prevOwnNode.setNext(otherNode);
 				otherNode.setNext(ownNode);
 				
 				if (ownNode.next == this.tail) {
@@ -140,6 +145,9 @@ public class DSA_1196473_5 {
 		}
 		
 		public String toString() {
+			if (this.tail.next == this.head) {
+				return "[]";
+			}
 			StringBuilder sb = new StringBuilder("[");
 			Node<NodeType> current = this.head;
 			do {
@@ -154,25 +162,110 @@ public class DSA_1196473_5 {
 	}
 
 	public static void main(String[] args) {
+		testTaskA();
+		testTaskB();
+		testTaskC();
+		testTaskD(20);
+		testTaskE();
+		testTaskF();
+		testTaskG();
+		testTaskH();
+	}
+	
+	private static void testTaskA() {
+		System.out.println("Aufgabe a)");
+		System.out.println("Leere Liste:"+new SinglyLinkedList<Integer>());
+		System.out.println("");
+	}
+	
+	private static void testTaskB() {
+		System.out.println("Aufgabe b)");
+		SinglyLinkedList<Integer> list = getOrderedList();
+		System.out.println("Liste: "+list);
+		System.out.println("Suche nach 5: "+list.locate(5).asString());
+		System.out.println();
+	}
+	
+	private static void testTaskC() {
+		System.out.println("Aufgabe b)");
+		SinglyLinkedList<Integer> list = getOrderedList();
+		System.out.println("Liste: "+list);
+		SinglyLinkedList<Integer>.Node<Integer> node = list.locate(20);
+		System.out.println("Suche nach 20: "+node.asString());
+		list.insertAfter(node, -10);
+		System.out.println("Einfügen von -10 nach 20: "+list);
+		list.insertAfter(node, 50);
+		System.out.println("Einfügen von 50 nach 20: "+list);
+		System.out.println();
+	}
+	
+	private static void testTaskD(int length) {
+		System.out.println("Aufgabe d)");
+		System.out.println("Länge: "+length);
+		SinglyLinkedList<Long> list = new SinglyLinkedList<Long>();
+		for (int i=0; i < length; i++) {
+			list.insertAfter(null, Math.round(Math.random()*1000));
+		}
+		System.out.println("Liste: "+list);
+		System.out.println();
+	}
+	
+	private static void testTaskE() {
+		System.out.println("Aufgabe e)");
+		SinglyLinkedList<Integer> list = getOrderedList();
+		System.out.println("Liste: "+list);
+		SinglyLinkedList<Integer>.Node<Integer> node = list.locate(20);
+		System.out.println("Suche nach 20: "+node.asString());
+		list.insertBefore(node, -10);
+		System.out.println("Einfügen von -10 vor 20: "+list);
+		list.insertBefore(null, 50);
+		System.out.println("Einfügen von 50 vor tail: "+list);
+		System.out.println();
+	}
+	
+	private static void testTaskF() {
+		System.out.println("Aufgabe f)");
+		SinglyLinkedList<Integer> list = getOrderedList();
+		System.out.println("Liste: "+list);
+		SinglyLinkedList<Integer>.Node<Integer> node = list.locate(15);
+		System.out.println("Suche nach 15: "+node.asString());
+		list.delete(node);
+		System.out.println("Löschen von 15: "+list);
+		System.out.println();
+	}
+	
+	private static void testTaskG() {
+		System.out.println("Aufgabe f)");
+		SinglyLinkedList<Integer> listOne = getOrderedList();
+		System.out.println("Liste 1: "+listOne);
+		SinglyLinkedList<Integer> listTwo = getOrderedListFromToWithStep(30, 40, 1);
+		System.out.println("Liste 2: "+listTwo);
+		listOne.concat(listTwo);
+		System.out.println("Liste 1 mit Liste 2 angehängt: "+listOne);
+		System.out.println();
+	}
+	
+	private static void testTaskH() {
+		System.out.println("Aufgabe h)");
+		SinglyLinkedList<Integer> listOne = getOrderedListFromToWithStep(-10, 10, 2);
+		System.out.println("Liste 1: "+listOne);
+		SinglyLinkedList<Integer> listTwo = getOrderedListFromToWithStep(1, 21, 3);
+		System.out.println("Liste 2: "+listTwo);
+		listOne.merge(listTwo);
+		System.out.println("Liste 1 mit Liste 2 vereinigt: "+listOne);
+	}
+	
+	private static SinglyLinkedList<Integer> getOrderedList() {
+		return getOrderedListFromToWithStep(0, 20, 1);
+	}
+	
+	private static SinglyLinkedList<Integer> getOrderedListFromToWithStep(int from, int to, int step) {
 		SinglyLinkedList<Integer> list = new SinglyLinkedList<Integer>();
 		SinglyLinkedList<Integer>.Node<Integer> inserted = null;
-		for (int i = 0; i < 20; i += 2) {
-			inserted = list.insertAfter(inserted, Integer.valueOf(i));//Math.random());
+		for (; from <= to; from += step) {
+			inserted = list.insertAfter(inserted, Integer.valueOf(from));
 		}
-		list.delete(list.locate(Integer.valueOf(0)));
-		System.out.println(list);
-		
-		SinglyLinkedList<Integer> list2 = new SinglyLinkedList<Integer>();
-		for (int i = -21; i < 22; i += 2) {
-			list2.insertBefore(null, Integer.valueOf(i));//Math.random());
-		}
-		System.out.println(list2);
-		
-		
-		//list.concat(list2);
-		list.merge(list2);
-		System.out.println(list);
-		System.out.println(new SinglyLinkedList<Integer>().merge(list2));
+		return list;
 	}
 
 }
