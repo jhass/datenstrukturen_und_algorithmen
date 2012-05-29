@@ -7,7 +7,11 @@ public class DSA_1196473_5 {
 			protected Node<ValueType> next;
 			protected Node(ValueType value, Node<ValueType> nextNode) {
 				this.value = value;
-				this.next = nextNode;
+				this.setNext(nextNode);
+			}
+			
+			protected void setNext(Node<ValueType> node) {
+				this.next = node;
 			}
 			
 			@Override
@@ -22,7 +26,7 @@ public class DSA_1196473_5 {
 		public SinglyLinkedList(){
 			this.head = new Node<NodeType>(null, null);
 			this.tail = new Node<NodeType>(null, this.head);
-			this.head.next = this.tail; 
+			this.head.setNext(this.tail); 
 		}
 		
 		public Node<NodeType> locate(NodeType value) {
@@ -49,9 +53,9 @@ public class DSA_1196473_5 {
 			}
 			Node<NodeType> insertNode = new Node<NodeType>(insert, after.next);
 			if (after.next.next == after) {
-				after.next.next = insertNode;
+				after.next.setNext(insertNode);
 			}
-			after.next = insertNode;
+			after.setNext(insertNode);
 			return insertNode;
 		}
 		
@@ -60,10 +64,10 @@ public class DSA_1196473_5 {
 			Node<NodeType> insertNode = new Node<NodeType>(insert, preBeforeNode.next);
 			
 			if (preBeforeNode.next.next == preBeforeNode) {
-				preBeforeNode.next.next = insertNode;
+				preBeforeNode.next.setNext(insertNode);
 			}
 			
-			preBeforeNode.next = insertNode;
+			preBeforeNode.setNext(insertNode);
 			return insertNode;
 		}
 		
@@ -81,16 +85,16 @@ public class DSA_1196473_5 {
 		public void delete(Node<NodeType> toDelete) {
 			if (toDelete.next.next == toDelete) {
 				Node<NodeType> before = locatePrevious(toDelete);
-				before.next = toDelete.next;
-				before.next.next = before;
+				before.setNext(toDelete.next);
+				before.next.setNext(before);
 			} else {
 				toDelete.value = toDelete.next.value;
-				toDelete.next = toDelete.next.next;
+				toDelete.setNext(toDelete.next.next);
 			}
 		}
 		
 		public SinglyLinkedList<NodeType> concat(SinglyLinkedList<NodeType> otherList) {
-			this.tail.next.next = otherList.head.next;
+			this.tail.next.setNext(otherList.head.next);
 			return this;
 		}
 		
@@ -114,11 +118,11 @@ public class DSA_1196473_5 {
 				}
 				
 				nextOtherNode = otherNode.next;
-				preOwnNode.next = otherNode;
-				otherNode.next = ownNode;
+				preOwnNode.setNext(otherNode);
+				otherNode.setNext(ownNode);
 				
 				if (ownNode.next == this.tail) {
-					ownNode.next = otherNode;
+					ownNode.setNext(otherNode);
 					otherNode = nextOtherNode;
 					break;
 				}
@@ -128,7 +132,7 @@ public class DSA_1196473_5 {
 			}
 			
 			if (otherNode != otherList.tail) {
-				this.tail.next.next = otherNode;
+				this.tail.next.setNext(otherNode);
 				this.tail = otherList.tail;
 			}
 			
