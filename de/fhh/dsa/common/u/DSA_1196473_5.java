@@ -1,30 +1,31 @@
-package Uebungen;
+package de.fhh.dsa.common.u;
 
 public class DSA_1196473_5 {
-	static class SinglyLinkedList {
-		class Node {
-			protected Object value;
-			protected Node next;
-			protected Node(Object value, Node nextNode) {
+	static class SinglyLinkedList<NodeType extends Comparable<NodeType>> {
+		class Node<ValueType extends Comparable<ValueType>> {
+			protected ValueType value;
+			protected Node<ValueType> next;
+			protected Node(ValueType value, Node<ValueType> nextNode) {
 				this.value = value;
 				this.next = nextNode;
 			}
 			
+			@Override
 			public String toString() {
 				return this.value.toString();
 			}
 		}
 		
-		private Node head;
-		private Node tail;
+		private Node<NodeType> head;
+		private Node<NodeType> tail;
 		
 		public SinglyLinkedList(){
-			this.head = new Node(null, null);
-			this.tail = new Node(null, this.head);
+			this.head = new Node<NodeType>(null, null);
+			this.tail = new Node<NodeType>(null, this.head);
 			this.head.next = this.tail; 
 		}
 		
-		public Node locate(Object value) {
+		public Node<NodeType> locate(NodeType value) {
 			if (value == null) {
 				return this.head;
 			} else {
@@ -32,8 +33,8 @@ public class DSA_1196473_5 {
 			}
 		}
 		
-		private Node locate(Object value, Node current) {
-			if (current.next.value == value) {
+		private Node<NodeType> locate(NodeType value, Node<NodeType> current) {
+			if (current.next.value.equals(value)) {
 				return current.next;
 			} else if (current.next.next == current) {
 				return null;
@@ -42,11 +43,11 @@ public class DSA_1196473_5 {
 			}
 		}
 		
-		public Node insertAfter(Node after, Object insert) {
+		public Node<NodeType> insertAfter(Node<NodeType> after, NodeType insert) {
 			if (after == null) {
 				after = this.head;
 			}
-			Node insertNode = new Node(insert, after.next);
+			Node<NodeType> insertNode = new Node<NodeType>(insert, after.next);
 			if (after.next.next == after) {
 				after.next.next = insertNode;
 			}
@@ -54,9 +55,9 @@ public class DSA_1196473_5 {
 			return insertNode;
 		}
 		
-		public Node insertBefore(Node before, Object insert) {
-			Node preBeforeNode = locateBefore(before);
-			Node insertNode = new Node(insert, preBeforeNode.next);
+		public Node<NodeType> insertBefore(Node<NodeType> before, NodeType insert) {
+			Node<NodeType> preBeforeNode = locatePrevious(before);
+			Node<NodeType> insertNode = new Node<NodeType>(insert, preBeforeNode.next);
 			
 			if (preBeforeNode.next.next == preBeforeNode) {
 				preBeforeNode.next.next = insertNode;
@@ -66,20 +67,20 @@ public class DSA_1196473_5 {
 			return insertNode;
 		}
 		
-		private Node locateBefore(Node node) {
+		private Node<NodeType> locatePrevious(Node<NodeType> node) {
 			if (node == null) {
 				return this.tail.next;
 			}
-			Node beforeNode = this.head;
+			Node<NodeType> beforeNode = this.head;
 			while (beforeNode.next != node) {
 				beforeNode = beforeNode.next;
 			}
 			return beforeNode;
 		}
 		
-		public void delete(Node toDelete) {
+		public void delete(Node<NodeType> toDelete) {
 			if (toDelete.next.next == toDelete) {
-				Node before = locateBefore(toDelete);
+				Node<NodeType> before = locatePrevious(toDelete);
 				before.next = toDelete.next;
 				before.next.next = before;
 			} else {
@@ -88,23 +89,55 @@ public class DSA_1196473_5 {
 			}
 		}
 		
-		public void concat(SinglyLinkedList otherList) {
+		public SinglyLinkedList<NodeType> concat(SinglyLinkedList<NodeType> otherList) {
 			this.tail.next.next = otherList.head.next;
+			return this;
 		}
 		
-		public void merge(SinglyLinkedList otherList) {
-			Node otherNode = otherList.head;
-			Node ownNode = this.head;
-			while(!(otherNode.next.next == otherNode || ownNode.next.next == ownNode)) {
-				
-				otherNode = otherNode.next;
-				ownNode = ownNode.next;
+		public SinglyLinkedList<NodeType> merge(SinglyLinkedList<NodeType> otherList) {
+			Node<NodeType> ownNode = this.head.next;
+			Node<NodeType> otherNode = otherList.head.next;
+			Node<NodeType> preOwnNode = this.head;
+			Node<NodeType> nextOtherNode;
+			
+			if (ownNode == this.tail) {  // we are empty
+				this.concat(otherList);
+				return this;
+			} else if (otherNode == otherList.tail) { // other list is empty
+					return this; // noop
 			}
+			
+			while(otherNode != otherList.tail) {
+				while(ownNode != this.tail && (ownNode.value.compareTo(otherNode.value) < 0)) {
+					preOwnNode = ownNode;
+					ownNode = ownNode.next;
+				}
+				
+				nextOtherNode = otherNode.next;
+				preOwnNode.next = otherNode;
+				otherNode.next = ownNode;
+				
+				if (ownNode.next == this.tail) {
+					ownNode.next = otherNode;
+					otherNode = nextOtherNode;
+					break;
+				}
+				
+				ownNode = otherNode;
+				otherNode = nextOtherNode;
+			}
+			
+			if (otherNode != otherList.tail) {
+				this.tail.next.next = otherNode;
+				this.tail = otherList.tail;
+			}
+			
+			return this;
 		}
 		
 		public String toString() {
 			StringBuilder sb = new StringBuilder("[");
-			Node current = this.head;
+			Node<NodeType> current = this.head;
 			do {
 				sb.append(current.next+", ");
 				current = current.next;
@@ -117,19 +150,25 @@ public class DSA_1196473_5 {
 	}
 
 	public static void main(String[] args) {
-		SinglyLinkedList list = new SinglyLinkedList();
-		SinglyLinkedList.Node inserted = null;
-		for (int i = 0; i < 20; i++) {
-			inserted = list.insertAfter(inserted, i);//Math.random());
+		SinglyLinkedList<Integer> list = new SinglyLinkedList<Integer>();
+		SinglyLinkedList<Integer>.Node<Integer> inserted = null;
+		for (int i = 0; i < 20; i += 2) {
+			inserted = list.insertAfter(inserted, Integer.valueOf(i));//Math.random());
 		}
-		list.delete(list.locate(0));
+		list.delete(list.locate(Integer.valueOf(0)));
 		System.out.println(list);
-		SinglyLinkedList list2 = new SinglyLinkedList();
-		for (int i = 0; i < 20; i++) {
-			list2.insertBefore(null, i);//Math.random());
+		
+		SinglyLinkedList<Integer> list2 = new SinglyLinkedList<Integer>();
+		for (int i = -21; i < 22; i += 2) {
+			list2.insertBefore(null, Integer.valueOf(i));//Math.random());
 		}
-		list.concat(list2);
+		System.out.println(list2);
+		
+		
+		//list.concat(list2);
+		list.merge(list2);
 		System.out.println(list);
+		System.out.println(new SinglyLinkedList<Integer>().merge(list2));
 	}
 
 }
