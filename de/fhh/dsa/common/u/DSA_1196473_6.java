@@ -16,32 +16,38 @@ public class DSA_1196473_6 {
 			protected void setNext(Node next) {
 				this.next = next;
 			}
-			
+
 			@Override
-			public String toString() { 
-				return String.format("\t%.2f", this.value); 
+			public String toString() {
+				return String.format("\t%.2f", this.value);
 			}
-			
+
 			public String asString() {
 				return String.format("<Node value=%f colIndex=%d>", this.value,
 						this.colIndex);
 			}
 		}
-		
-		public static Node vectorFactory(double[] elements) {
+
+		public static Matrix vectorFactory(double[] elements) {
 			Node current = null;
-			for (int i = elements.length-1; i >= 0; i--) {
+			for (int i = elements.length - 1; i >= 0; i--) {
 				if (elements[i] != 0) {
 					current = new Node(elements[i], current, i);
 				}
 			}
-			
-			return current;
+			Matrix vector = new Matrix(1, elements.length);
+			vector.rows[0] = current;
+			return vector;
 		}
 
 		private Node[] rows;
 		private int numCols;
-
+		
+		public Matrix(int rows, int cols) {
+			this.rows = new Node[rows];
+			this.numCols = cols;
+		}
+		
 		public Matrix(int rows, int cols, int k) {
 			this.rows = new Node[rows];
 			this.numCols = cols;
@@ -65,48 +71,56 @@ public class DSA_1196473_6 {
 				}
 			}
 		}
-		
-		public Node multiplyWithVector(Node vector) {			
-			Node currentResultItem, vectorItem,
-				 resultingVector = null, 
-				 lastResultItem = null;
+
+		public Matrix multiplyWithVector(Matrix vector) {
+			if (vector.rows.length != 1) {
+				throw new IllegalArgumentException("given matrix is not a vector!");
+			}
+			
+			if (vector.numCols != this.numCols) {
+				throw new IllegalArgumentException("given vector doesn't have the right size!");
+			}
+			
+			Node currentResultItem, vectorItem, resultingVectorStart = null, lastResultItem = null;
 			int colIndex = 0;
 			double sum;
-			
-			for (Node row : this.rows) {
+
+			for (Node rowItem : this.rows) {
 				sum = 0;
-				vectorItem = vector;
-				while (row != null && vectorItem != null) {
-					while (vectorItem != null && vectorItem.colIndex < row.colIndex) {
+				vectorItem = vector.rows[0];
+				while (rowItem != null && vectorItem != null) {
+					while (vectorItem != null
+							&& vectorItem.colIndex < rowItem.colIndex) {
 						vectorItem = vectorItem.next;
 					}
 					
-					if (row.colIndex == vectorItem.colIndex) {
-						sum += row.value*vectorItem.value; 
+					if (vectorItem != null && rowItem.colIndex == vectorItem.colIndex) {
+						sum += rowItem.value * vectorItem.value;
 						vectorItem = vectorItem.next;
 					}
-					
-					row = row.next;
+
+					rowItem = rowItem.next;
 				}
-				
+
 				if (sum != 0) {
 					currentResultItem = new Node(sum, null, colIndex);
 					if (lastResultItem == null) {
-						resultingVector = currentResultItem;
+						resultingVectorStart = currentResultItem;
 					} else {
 						lastResultItem.setNext(currentResultItem);
 					}
-					
+
 					lastResultItem = currentResultItem;
 				}
-				
+
 				colIndex++;
 			}
 			
+			Matrix resultingVector = new Matrix(1, colIndex);
+			resultingVector.rows[0] = resultingVectorStart;
 			return resultingVector;
 		}
-		
-		
+
 		public void addMatrix(Matrix b) {
 			addOrSubstractMatrix(b, false);
 		}
@@ -120,33 +134,33 @@ public class DSA_1196473_6 {
 				throw new IllegalArgumentException(
 						"other matrix is not of the same type!");
 			}
-			
+
 			Node currentOwnNode, currentOtherNode, previousOwnNode, nextOtherNode;
-			
+
 			for (int row = 0; row < this.rows.length; row++) {
 				currentOwnNode = this.rows[row];
 				if (currentOwnNode == null) {
 					this.rows[row] = b.rows[row];
 					continue;
 				}
-				
+
 				previousOwnNode = null;
 				currentOtherNode = b.rows[row];
 				while (currentOtherNode != null) {
 					if (negation) {
 						currentOtherNode.value = -currentOtherNode.value;
 					}
-					
-					while (currentOtherNode.colIndex > currentOwnNode.colIndex 
+
+					while (currentOtherNode.colIndex > currentOwnNode.colIndex
 							|| currentOwnNode == null) {
 						previousOwnNode = currentOwnNode;
 						currentOwnNode = currentOwnNode.next;
 					}
-					
+
 					nextOtherNode = currentOtherNode.next;
 					if (currentOwnNode.colIndex == currentOtherNode.colIndex) {
 						currentOwnNode.value += currentOtherNode.value;
-						
+
 						if (currentOwnNode.value == 0) {
 							if (previousOwnNode == null) {
 								this.rows[row] = currentOwnNode.next;
@@ -154,7 +168,7 @@ public class DSA_1196473_6 {
 								previousOwnNode.setNext(currentOwnNode.next);
 							}
 						}
-						
+
 						previousOwnNode = currentOwnNode;
 						currentOwnNode = currentOwnNode.next;
 					} else {
@@ -165,7 +179,7 @@ public class DSA_1196473_6 {
 							previousOwnNode.setNext(currentOtherNode);
 							currentOtherNode.setNext(currentOwnNode);
 						}
-						
+
 					}
 					currentOtherNode = nextOtherNode;
 				}
@@ -191,15 +205,20 @@ public class DSA_1196473_6 {
 
 			return sb.toString();
 		}
-		
-		public String vectorToString(Node vector) {
+
+		public String asVectorString() {
+			if (this.rows.length != 1) {
+				throw new IllegalArgumentException("I'm not a vector!");
+			}
+			
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < this.numCols; i++) {
-				if (vector != null && vector.colIndex == i) {
-					sb.append(vector.value);
-					vector = vector.next;
+			Node current = this.rows[0];
+			for (int colIndex = 0; colIndex < this.numCols; colIndex++) {
+				if (current != null && colIndex == current.colIndex) {
+					sb.append(current);
+					current = current.next;
 				} else {
-					sb.append("N");
+					sb.append("\tN");
 				}
 				sb.append("\n");
 			}
@@ -224,12 +243,12 @@ public class DSA_1196473_6 {
 		System.out.println("After add:");
 		matrix.addMatrix(matrixToAdd);
 		System.out.println(matrix);
-		
-		Matrix.Node vector = Matrix.vectorFactory(new double[]{1, 2, 3, 4, 0, 6, 7, 8});
+
+		Matrix vector = Matrix.vectorFactory(new double[] { 1, 2, 3, 4, 0, 6, 7, 0 });
 		System.out.println("Vector:");
-		System.out.println(matrix.vectorToString(vector));
-		
+		System.out.println(vector.asVectorString());
+
 		System.out.println("Multiplication Result:");
-		System.out.println(matrix.vectorToString(matrix.multiplyWithVector(vector)));
+		System.out.println(matrix.multiplyWithVector(vector).asVectorString());
 	}
 }
