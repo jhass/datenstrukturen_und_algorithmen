@@ -1,7 +1,13 @@
- package de.fhh.dsa.common.u;
+package de.fhh.dsa.common.u;
 
 import java.util.Arrays;
 
+/** Sortier- und Suchalgorithmen
+*
+* @author Richard Pump <richard.pump@stud.fh-hannover.de> (1195429)
+* @author Jonne Haß <jonne.hass@stud.fh-hannover.de> (1196473)
+*
+*/
 public class DSA_1196473_4 {
 	private static long start;
 	

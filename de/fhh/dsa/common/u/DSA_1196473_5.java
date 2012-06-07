@@ -45,7 +45,7 @@ public class DSA_1196473_5 {
 		private Node<NodeType> locate(NodeType value, Node<NodeType> current) {
 			if (current.next.value.equals(value)) {
 				return current.next;
-			} else if (current.next.next == current) {
+			} else if (current.next == this.tail) {
 				return null;
 			} else {
 				return this.locate(value, current.next);
@@ -153,7 +153,7 @@ public class DSA_1196473_5 {
 			do {
 				sb.append(current.next+", ");
 				current = current.next;
-			} while (!(current.next.next == current));
+			} while (current.next.next != current);
 			sb.deleteCharAt(sb.lastIndexOf(","));
 			sb.deleteCharAt(sb.lastIndexOf(" "));
 			sb.append("]");
