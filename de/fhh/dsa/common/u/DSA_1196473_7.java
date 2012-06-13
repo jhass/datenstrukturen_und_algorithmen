@@ -48,6 +48,14 @@ public class DSA_1196473_7 {
 				return !isRoot() && this.value > this.parent.value;
 			}
 			
+			public boolean hasNoLeftSide() {
+				return this.leftChild == null;
+			}
+			
+			public boolean hasNoRightSide() {
+				return this.rightChild == null;
+			}
+			
 			@Override
 			public String toString() {
 				return Integer.toString(this.value);
@@ -217,31 +225,19 @@ public class DSA_1196473_7 {
 			recursiveTraverse(this.root, new TraverseCallback() {
 				private TreeNode previous;
 				public void action(TreeNode current) {
-					if (!current.hasRightChild()) {
-						if (previous == null) {
-							current.rightChild = current.parent;
-							current.rightIsWire = true;
-							previous = current.parent;
-						} else {
-							current.rightChild = current.parent;
-							current.rightIsWire = true;
-							previous = current.parent;
-							
-						}
-					}
-					
-					if (!current.hasLeftChild()) {
+					if (current.hasNoLeftSide()) {
 						if (previous != null) {
 							current.leftChild = previous;
-							current.leftIsWire = true;
-							
-							
 						}
+						current.leftIsWire = true;
 					}
 					
-					if (current.hasBothChilds()) {
-						previous = current;
+					if (previous != null && previous.hasNoRightSide()) {
+						previous.rightChild = current;
+						previous.rightIsWire = true;
 					}
+					
+					previous = current;
 				}
 			});
 		}
@@ -317,21 +313,24 @@ public class DSA_1196473_7 {
 				186, 152, 203, 187, 290, 60, 130, 273, 66, 239, 187, 105, 9,
 				229, 245, 239, 20, 40, 33, 85, 300, 295, 302
 			}, false);
-		tree.generateInOrderWire();
-		System.out.println(tree);
+		tree.recursivePrintInOrder();
+		
 		System.out.println("Suchergebniss nach 187:");
 		System.out.println(tree.search(187));
+		
 		System.out.println("Baum nach einfügen von 23:");
 		tree.insert(new BinarySearchTree.TreeNode(23));
-		System.out.println(tree);
+		tree.recursivePrintInOrder();
+		
 		System.out.println("Baum nach löschen von 152:");
 		tree.delete(tree.search(152));
-		System.out.println(tree);
-		System.out.println("Baum rekursiv ausgegeben:");
 		tree.recursivePrintInOrder();
+		
 		System.out.println("Höhe des aktuellen Baumes:");
 		System.out.println(tree.getHeight());
-		System.out.println("Baum nach 'InOrder-Wire'en:");
-		System.out.println(tree);
+		
+		System.out.println("Baum nach 'InOrder-Wire'en iterativ ausgegeben:");
+		tree.generateInOrderWire();
+		tree.printInOrder();
 	}
 }
