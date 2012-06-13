@@ -1,5 +1,11 @@
 package de.fhh.dsa.common.u;
 
+/** Matrix-Vector Multiplikation und Matrix-Addition/Substraktion
+*
+* @author Richard Pump <richard.pump@stud.fh-hannover.de> (1195429)
+* @author Jonne Haß <jonne.hass@stud.fh-hannover.de> (1196473)
+*
+*/
 public class DSA_1196473_6 {
 	static class Matrix {
 		static class Node {
@@ -233,22 +239,24 @@ public class DSA_1196473_6 {
 		Matrix matrixToSub = new Matrix(4, 8, 3);
 		System.out.println("Base:");
 		System.out.println(matrix);
+
+		Matrix vector = Matrix.vectorFactory(new double[] { 1, 2, 3, 4, 2, 6, 7, 0 });
+		System.out.println("Vector:");
+		System.out.println(vector.asVectorString());
+		System.out.println("Multiplication Result:");
+		System.out.println(matrix.multiplyWithVector(vector).asVectorString());
+		
 		System.out.println("To Sub:");
 		System.out.println(matrixToSub);
 		System.out.println("After sub:");
 		matrix.subMatrix(matrixToSub);
 		System.out.println(matrix);
+		
 		System.out.println("To add:");
 		System.out.println(matrixToAdd);
 		System.out.println("After add:");
 		matrix.addMatrix(matrixToAdd);
 		System.out.println(matrix);
 
-		Matrix vector = Matrix.vectorFactory(new double[] { 1, 2, 3, 4, 0, 6, 7, 0 });
-		System.out.println("Vector:");
-		System.out.println(vector.asVectorString());
-
-		System.out.println("Multiplication Result:");
-		System.out.println(matrix.multiplyWithVector(vector).asVectorString());
 	}
 }
