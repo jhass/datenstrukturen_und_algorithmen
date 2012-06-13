@@ -1,7 +1,11 @@
 package de.fhh.dsa.common.u;
 
 public class DSA_1196473_7 {
+	
 	static class BinarySearchTree {
+		interface TraverseCallback {
+			public void action(TreeNode current);
+		}
 		static class TreeNode {
 			protected int value;
 			protected TreeNode parent;
@@ -51,11 +55,23 @@ public class DSA_1196473_7 {
 		}
 		
 		private TreeNode root;
+		private boolean prematureWiring;
 		
 		public BinarySearchTree(int[] values) {
+			this(values, true);
+		}
+		
+		public BinarySearchTree(int[] values, boolean prematureWiring) {
+			this.prematureWiring = prematureWiring;
+			
 			for (int value : values) {
 				this.insert(new TreeNode(value));
 			}
+			
+		}
+		
+		public void disablePrematureWiring() {
+			this.prematureWiring = false;
 		}
 		
 		public TreeNode search(int value) {
@@ -81,30 +97,34 @@ public class DSA_1196473_7 {
 						if (parent.hasRightChild()) {
 							parent = parent.rightChild;
 						} else {
-							node.rightChild = parent.rightChild;
-							node.rightIsWire = true;
+							if (this.prematureWiring) {
+								node.rightChild = parent.rightChild;
+								node.rightIsWire = true;
+								
+								parent.rightIsWire = false;
+								
+								node.leftChild = parent;
+								node.leftIsWire = true;
+							}
 							
 							parent.rightChild = node;
-							parent.rightIsWire = false;
-							
-							node.leftChild = parent;
-							node.leftIsWire = true;
-							
 							break;
 						}
 					} else { // links einfügen
 						if (parent.hasLeftChild()) {
 							parent = parent.leftChild;
 						} else {
-							node.leftChild = parent.leftChild;
-							node.leftIsWire = true;
+							if (this.prematureWiring) {
+								node.leftChild = parent.leftChild;
+								node.leftIsWire = true;
+								
+								parent.leftIsWire = false;
+								
+								node.rightChild = parent;
+								node.rightIsWire = true;
+							}
 							
 							parent.leftChild = node;
-							parent.leftIsWire = false;
-							
-							node.rightChild = parent;
-							node.rightIsWire = true;
-							
 							break;
 						}
 					}
@@ -144,25 +164,37 @@ public class DSA_1196473_7 {
 			
 			if (node.isRightChild()) {
 				node.parent.rightChild = newChild;
-				node.parent.rightIsWire = node.rightIsWire;
+				if (this.prematureWiring)
+					node.parent.rightIsWire = node.rightIsWire;
 			} else {
 				node.parent.leftChild = newChild;
-				node.parent.leftIsWire = node.leftIsWire;
+				if (this.prematureWiring)
+					node.parent.leftIsWire = node.leftIsWire;
 			}
 			
-			TreeNode current = node;
+			if (this.prematureWiring) {
+				final TreeNode refNode = node;
+				traverse(node, new TraverseCallback() {
+					public void action(TreeNode current) {
+						fixDeadReference(refNode, current);
+					}
+				});
+			}
+		}
+		
+		private void traverse(TreeNode current, TraverseCallback callback) {
 			TreeNode previous;
 			do {
 				while (!current.leftIsWire) {
 					current = current.leftChild;
 				}
 				
-				fixDeadReference(node, current);
+				callback.action(current);
 				
 				previous = current;
 				current = current.rightChild;
 				while (previous.rightIsWire && current != null) {
-					fixDeadReference(node, current);
+					callback.action(current);
 					
 					previous = current;
 					current = current.rightChild;
@@ -180,38 +212,112 @@ public class DSA_1196473_7 {
 			}
 		}
 		
-		@Override
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			
-			TreeNode current = this.root;
-			TreeNode previous;
-			do {
-				while (!current.leftIsWire) {
-					current = current.leftChild;
+		
+		public void generateInOrderWire() {
+			recursiveTraverse(this.root, new TraverseCallback() {
+				private TreeNode previous;
+				public void action(TreeNode current) {
+					if (!current.hasRightChild()) {
+						if (previous == null) {
+							current.rightChild = current.parent;
+							current.rightIsWire = true;
+							previous = current.parent;
+						} else {
+							current.rightChild = current.parent;
+							current.rightIsWire = true;
+							previous = current.parent;
+							
+						}
+					}
+					
+					if (!current.hasLeftChild()) {
+						if (previous != null) {
+							current.leftChild = previous;
+							current.leftIsWire = true;
+							
+							
+						}
+					}
+					
+					if (current.hasBothChilds()) {
+						previous = current;
+					}
 				}
-				
-				sb.append(current);
-				sb.append(" ");
-				
-				previous = current;
-				current = current.rightChild;
-				while (previous.rightIsWire && current != null) {
+			});
+		}
+		
+		private void recursiveTraverse(TreeNode node, TraverseCallback callback) {
+			if (node.hasLeftChild()) {
+				recursiveTraverse(node.leftChild, callback);
+			}
+			
+			callback.action(node);
+			
+			if (node.hasRightChild()) {
+				recursiveTraverse(node.rightChild, callback);
+			}
+		}
+		
+		public void printInOrder() {
+			System.out.print(this);
+		}
+		
+		public void recursivePrintInOrder() {
+			final StringBuilder sb = new StringBuilder();
+			recursiveTraverse(this.root, new TraverseCallback() {
+				public void action(TreeNode current) {
 					sb.append(current);
 					sb.append(" ");
-					previous = current;
-					current = current.rightChild;
 				}
-			} while (current != null);
+			});
+			System.out.println(sb.toString());
+		}
+		
+		@Override
+		public String toString() {
+			return toInOrderString();
+		}
+		
+		private String toInOrderString() {
+			final StringBuilder sb = new StringBuilder();
+			
+			traverse(this.root, new TraverseCallback() {
+				public void action(TreeNode current) {
+					sb.append(current);
+					sb.append(" ");
+				}
+			});
 			
 			return sb.toString();
+		}
+		
+		public int getHeight() {
+			return getHeight(this.root);
+		}
+		
+		private int getHeight(TreeNode node) {
+			int leftHeight = 0, rightHeight = 0;
+			if (node.hasLeftChild()) {
+				leftHeight = getHeight(node.leftChild);
+			}
+			
+			if (node.hasRightChild()) {
+				rightHeight = getHeight(node.rightChild);
+			}
+			
+			return Math.max(leftHeight, rightHeight)+1;
 		}
 	}
 	
 	
 	public static void main(String[] args) {
 		System.out.println("Baum:");
-		BinarySearchTree tree = new BinarySearchTree(new int[]{186, 152, 203, 187, 290, 60, 130, 273, 66, 239, 187, 105, 9, 229, 245, 239, 20, 40, 33, 85, 300, 295, 302});//new BinarySearchTree(new int[]{3,57,83,2,45,323,1,2});
+		BinarySearchTree tree = new BinarySearchTree(
+			new int[]{
+				186, 152, 203, 187, 290, 60, 130, 273, 66, 239, 187, 105, 9,
+				229, 245, 239, 20, 40, 33, 85, 300, 295, 302
+			}, false);
+		tree.generateInOrderWire();
 		System.out.println(tree);
 		System.out.println("Suchergebniss nach 187:");
 		System.out.println(tree.search(187));
@@ -220,6 +326,12 @@ public class DSA_1196473_7 {
 		System.out.println(tree);
 		System.out.println("Baum nach löschen von 152:");
 		tree.delete(tree.search(152));
+		System.out.println(tree);
+		System.out.println("Baum rekursiv ausgegeben:");
+		tree.recursivePrintInOrder();
+		System.out.println("Höhe des aktuellen Baumes:");
+		System.out.println(tree.getHeight());
+		System.out.println("Baum nach 'InOrder-Wire'en:");
 		System.out.println(tree);
 	}
 }
