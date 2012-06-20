@@ -1,5 +1,11 @@
 package de.fhh.dsa.common.u;
 
+/** Binärer Suchbaum (AVL)
+*
+* @author Richard Pump <richard.pump@stud.fh-hannover.de> (1195429)
+* @author Jonne Haß <jonne.hass@stud.fh-hannover.de> (1196473)
+*
+*/
 public class DSA_1196473_7 {
 	
 	static class BinarySearchTree {
@@ -54,6 +60,67 @@ public class DSA_1196473_7 {
 			
 			public boolean hasNoRightSide() {
 				return this.rightChild == null;
+			}
+			
+			public int getHeight() {
+				int leftHeight = 0, rightHeight = 0;
+				if (this.hasLeftChild()) {
+					leftHeight = this.leftChild.getHeight();
+				}
+				
+				if (this.hasRightChild()) {
+					rightHeight = this.rightChild.getHeight();
+				}
+				
+				return Math.max(leftHeight, rightHeight)+1;
+			}
+			
+			public int getBalanceFactor() {
+				int leftHeight = 0, rightHeight = 0;
+				
+				if (this.hasLeftChild()) {
+					leftHeight = this.leftChild.getHeight();
+				}
+				
+				if (this.hasRightChild()) {
+					rightHeight = this.rightChild.getHeight();
+				}
+				
+				return rightHeight-leftHeight;
+			}
+			
+			public void rotateRight() {
+				TreeNode tmp = this.leftChild;
+				this.leftChild = tmp.rightChild;
+				tmp.rightChild = this;
+				
+				if (this.isLeftChild()) {
+					this.parent.leftChild = tmp;
+				} else {
+					this.parent.rightChild = tmp;
+				}
+			}
+			
+			public void rotateLeft() {
+				TreeNode tmp = this.rightChild;
+				this.rightChild = tmp.leftChild;
+				tmp.leftChild = this;
+				
+				if (this.isLeftChild()) {
+					this.parent.leftChild = tmp;
+				} else {
+					this.parent.rightChild = tmp;
+				}
+			}
+			
+			public void rotateLeftRight() {
+				this.leftChild.rotateLeft();
+				this.rotateRight();
+			}
+			
+			public void rotateRightLeft() {
+				this.rightChild.rotateRight();
+				this.rotateLeft();
 			}
 			
 			@Override
@@ -139,6 +206,7 @@ public class DSA_1196473_7 {
 				}
 				
 				node.parent = parent;
+				this.balanceIfNecessary(parent);
 			} else {
 				this.root = node;
 			}
@@ -146,6 +214,24 @@ public class DSA_1196473_7 {
 		
 		private boolean initialized() {
 			return this.root != null;
+		}
+		
+		private void balanceIfNecessary(TreeNode node) {
+			if (node == this.root) {
+				if (node.getBalanceFactor() == 2) {
+					if (node.hasRightChild() && node.rightChild.getBalanceFactor() == -2) {
+						node.rotateRightLeft();
+					} else {
+						node.rotateLeft();
+					}
+				} else if (node.getBalanceFactor() == -2) {
+					if (node.hasLeftChild() && node.leftChild.getBalanceFactor() == 2) {
+						node.rotateLeftRight();
+					} else {
+						node.rotateRight();
+					}
+				}
+			}
 		}
 		
 		public void delete(TreeNode node) {
@@ -288,20 +374,7 @@ public class DSA_1196473_7 {
 		}
 		
 		public int getHeight() {
-			return getHeight(this.root);
-		}
-		
-		private int getHeight(TreeNode node) {
-			int leftHeight = 0, rightHeight = 0;
-			if (node.hasLeftChild()) {
-				leftHeight = getHeight(node.leftChild);
-			}
-			
-			if (node.hasRightChild()) {
-				rightHeight = getHeight(node.rightChild);
-			}
-			
-			return Math.max(leftHeight, rightHeight)+1;
+			return this.root.getHeight();
 		}
 	}
 	
