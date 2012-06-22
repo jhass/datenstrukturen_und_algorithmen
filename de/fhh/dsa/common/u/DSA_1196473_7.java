@@ -65,10 +65,12 @@ public class DSA_1196473_7 {
 			public int getHeight() {
 				int leftHeight = 0, rightHeight = 0;
 				if (this.hasLeftChild()) {
+					System.out.println(this+" has left child: "+this.leftChild);
 					leftHeight = this.leftChild.getHeight();
 				}
 				
 				if (this.hasRightChild()) {
+					System.out.println(this+" has right child: "+this.rightChild);
 					rightHeight = this.rightChild.getHeight();
 				}
 				
@@ -96,20 +98,39 @@ public class DSA_1196473_7 {
 				
 				if (this.isLeftChild()) {
 					this.parent.leftChild = tmp;
-				} else {
+				} else if (this.isRightChild()) {
 					this.parent.rightChild = tmp;
 				}
+				
+				tmp.parent = this.parent;
+				this.parent = tmp;
+				this.fixChildParents();
+				tmp.fixChildParents();
 			}
 			
-			public void rotateLeft() {
+			public void rotateLeft() { 
 				TreeNode tmp = this.rightChild;
 				this.rightChild = tmp.leftChild;
 				tmp.leftChild = this;
 				
 				if (this.isLeftChild()) {
 					this.parent.leftChild = tmp;
-				} else {
+				} else if (this.isRightChild()) {
 					this.parent.rightChild = tmp;
+				}
+				
+				tmp.parent = this.parent;
+				this.parent = tmp;
+				this.fixChildParents();
+				tmp.fixChildParents();
+			}
+			
+			private void fixChildParents() {
+				if (this.hasLeftChild()) {
+					this.leftChild.parent = this;
+				}
+				if (this.hasRightChild()) {
+					this.rightChild.parent = this;
 				}
 			}
 			
@@ -209,6 +230,7 @@ public class DSA_1196473_7 {
 				this.balanceIfNecessary(parent);
 			} else {
 				this.root = node;
+				node.parent = null;
 			}
 		}
 		
@@ -217,20 +239,24 @@ public class DSA_1196473_7 {
 		}
 		
 		private void balanceIfNecessary(TreeNode node) {
-			if (node == this.root) {
-				if (node.getBalanceFactor() == 2) {
-					if (node.hasRightChild() && node.rightChild.getBalanceFactor() == -2) {
-						node.rotateRightLeft();
-					} else {
-						node.rotateLeft();
-					}
-				} else if (node.getBalanceFactor() == -2) {
-					if (node.hasLeftChild() && node.leftChild.getBalanceFactor() == 2) {
-						node.rotateLeftRight();
-					} else {
-						node.rotateRight();
-					}
+			if (node.getBalanceFactor() == 2) {
+				if (node.hasRightChild() && node.rightChild.getBalanceFactor() == -2) {
+					node.rotateRightLeft();
+				} else {
+					node.rotateLeft();
 				}
+			} else if (node.getBalanceFactor() == -2) {
+				if (node.hasLeftChild() && node.leftChild.getBalanceFactor() == 2) {
+					node.rotateLeftRight();
+				} else {
+					node.rotateRight();
+				}
+			}
+			
+			if (node.parent == null) {
+				this.root = node;
+			} else {
+				balanceIfNecessary(node.parent);
 			}
 		}
 		
